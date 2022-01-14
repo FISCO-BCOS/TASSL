@@ -454,6 +454,9 @@ INCLUDE_MAIN___test_libtestutil_OLB = /INCLUDE=MAIN
     IF[{- !$disabled{sm2} -}]
       PROGRAMS_NO_INST=sm2_internal_test
     ENDIF
+    IF[{- !$disabled{sm2} -}]
+      PROGRAMS_NO_INST=sm2_benchmark_test
+    ENDIF
     IF[{- !$disabled{sm4} -}]
       PROGRAMS_NO_INST=sm4_internal_test
     ENDIF
@@ -500,6 +503,10 @@ INCLUDE_MAIN___test_libtestutil_OLB = /INCLUDE=MAIN
     SOURCE[sm2_internal_test]=sm2_internal_test.c
     INCLUDE[sm2_internal_test]=../include ../crypto/include
     DEPEND[sm2_internal_test]=../libcrypto.a libtestutil.a
+
+    SOURCE[sm2_benchmark_test]=sm2_benchmark_test.c
+    INCLUDE[sm2_benchmark_test]=../include ../crypto/include
+    DEPEND[sm2_benchmark_test]=../libcrypto.a libtestutil.a
 
     SOURCE[sm4_internal_test]=sm4_internal_test.c
     INCLUDE[sm4_internal_test]=.. ../include ../crypto/include

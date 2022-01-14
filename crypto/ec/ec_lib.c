@@ -68,6 +68,11 @@ void EC_pre_comp_free(EC_GROUP *group)
         EC_nistz256_pre_comp_free(group->pre_comp.nistz256);
 #endif
         break;
+    case PCT_sm2z256:
+#ifdef ECP_SM2Z256_ASM
+        EC_sm2z256_pre_comp_free(group->pre_comp.sm2z256);
+#endif
+        break;
 #ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
     case PCT_nistp224:
         EC_nistp224_pre_comp_free(group->pre_comp.nistp224);
@@ -151,6 +156,11 @@ int EC_GROUP_copy(EC_GROUP *dest, const EC_GROUP *src)
     case PCT_nistz256:
 #ifdef ECP_NISTZ256_ASM
         dest->pre_comp.nistz256 = EC_nistz256_pre_comp_dup(src->pre_comp.nistz256);
+#endif
+        break;
+    case PCT_sm2z256:
+#ifdef ECP_SM2Z256_ASM
+        dest->pre_comp.sm2z256 = EC_sm2z256_pre_comp_dup(src->pre_comp.sm2z256);
 #endif
         break;
 #ifndef OPENSSL_NO_EC_NISTP_64_GCC_128

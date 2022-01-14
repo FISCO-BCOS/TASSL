@@ -18,6 +18,13 @@
 #include <openssl/err.h>
 #include <openssl/bn.h>
 #include <string.h>
+#ifdef SM2_BENCHMARK
+#include <time.h>
+#include <sys/time.h>
+#ifdef SM2_BENCHMARK_PARALLEL
+#include <omp.h>
+#endif
+#endif
 
 int sm2_compute_z_digest(uint8_t *out,
                          const EVP_MD *digest,
@@ -370,6 +377,13 @@ ECDSA_SIG *sm2_do_sign(const EC_KEY *key,
     BIGNUM *e = NULL;
     ECDSA_SIG *sig = NULL;
 
+#ifdef SM2_BENCHMARK
+    int i, rep = 256000;
+    clock_t c_start, c_end;
+    struct timeval tval_start, tval_end, tval_diff;
+    double cpu_time, wall_time;
+#endif
+
     e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);
     if (e == NULL) {
         /* SM2err already called */
@@ -377,6 +391,39 @@ ECDSA_SIG *sm2_do_sign(const EC_KEY *key,
     }
 
     sig = sm2_sig_gen(key, e);
+
+#ifdef SM2_BENCHMARK
+#ifdef SM2_BENCHMARK_PARALLEL
+    for (int thr = 1; thr <= 64; thr *= 2) {
+        omp_set_num_threads(thr);
+
+        printf("Start SM2 signature sign benchmark: thr %d.\n", thr);
+#else
+        printf("Start SM2 signature sign benchmark.\n");
+#endif
+        c_start = clock();
+        gettimeofday(&tval_start, NULL);
+
+#ifdef SM2_BENCHMARK_PARALLEL
+#pragma omp parallel for schedule(static)
+#endif
+        for (i = 0; i < rep; i++) {
+            sm2_sig_gen(key, e);
+        }
+
+        gettimeofday(&tval_end, NULL);
+        c_end = clock() - c_start;
+        timersub(&tval_end, &tval_start, &tval_diff);
+        cpu_time = (double)c_end / CLOCKS_PER_SEC;
+        wall_time = (long)tval_diff.tv_sec + (double)tval_diff.tv_usec / 1000000;
+        printf("Benchmark finished. CPU time: %lf s, Wall time: %lf s.\n", cpu_time, wall_time);
+        printf("Speed is: %lf (CPU) / %lf (Wall) sign/s.\n", rep / cpu_time, rep / wall_time);
+
+#ifdef SM2_BENCHMARK_PARALLEL
+        rep *= 2;
+    }
+#endif
+#endif
 
  done:
     BN_free(e);
@@ -393,6 +440,13 @@ int sm2_do_verify(const EC_KEY *key,
     BIGNUM *e = NULL;
     int ret = 0;
 
+#ifdef SM2_BENCHMARK
+    int i, rep = 128000;
+    clock_t c_start, c_end;
+    struct timeval tval_start, tval_end, tval_diff;
+    double cpu_time, wall_time;
+#endif
+
     e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);
     if (e == NULL) {
         /* SM2err already called */
@@ -400,6 +454,39 @@ int sm2_do_verify(const EC_KEY *key,
     }
 
     ret = sm2_sig_verify(key, sig, e);
+
+#ifdef SM2_BENCHMARK
+#ifdef SM2_BENCHMARK_PARALLEL
+    for (int thr = 1; thr <= 64; thr *= 2) {
+        omp_set_num_threads(thr);
+            
+        printf("Start SM2 signature verification benchmark: thr %d.\n", thr);
+#else
+        printf("Start SM2 signature verification benchmark.");
+#endif
+        c_start = clock();
+        gettimeofday(&tval_start, NULL);
+
+#ifdef SM2_BENCHMARK_PARALLEL
+#pragma omp parallel for schedule(static)
+#endif
+        for (i = 0; i < rep; i++) {
+            sm2_sig_verify(key, sig, e);
+        }
+
+        gettimeofday(&tval_end, NULL);
+        c_end = clock() - c_start;
+        timersub(&tval_end, &tval_start, &tval_diff);
+        cpu_time = (double)c_end / CLOCKS_PER_SEC;
+        wall_time = (long)tval_diff.tv_sec + (double)tval_diff.tv_usec / 1000000;
+        printf("Benchmark finished. CPU time: %lf s, Wall time: %lf s.\n", cpu_time, wall_time);
+        printf("Speed is: %lf (CPU) / %lf (Wall) verify/s.\n", rep / cpu_time, rep / wall_time);
+
+#ifdef SM2_BENCHMARK_PARALLEL
+        rep *= 2;
+    }
+#endif
+#endif
 
  done:
     BN_free(e);

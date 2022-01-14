@@ -156,6 +156,30 @@ void ecp_nistz256_from_mont(unsigned long res[4], const unsigned long in[4])
 }
 #endif
 
+#ifdef ECP_SM2Z256_ASM
+void ecp_sm2z256_mul_mont(unsigned long res[4], const unsigned long a[4],
+                           const unsigned long b[4]);
+
+void ecp_sm2z256_to_mont(unsigned long res[4], const unsigned long in[4]);
+void ecp_sm2z256_to_mont(unsigned long res[4], const unsigned long in[4])
+{
+    static const unsigned long RR[] = { 0x0000000000000003U,
+                                        0xfffffffbffffffffU,
+                                        0xfffffffffffffffeU,
+                                        0x00000004fffffffdU };
+
+    ecp_sm2z256_mul_mont(res, in, RR);
+}
+
+void ecp_sm2z256_from_mont(unsigned long res[4], const unsigned long in[4]);
+void ecp_sm2z256_from_mont(unsigned long res[4], const unsigned long in[4])
+{
+    static const unsigned long one[] = { 1, 0, 0, 0 };
+
+    ecp_sm2z256_mul_mont(res, in, one);
+}
+#endif
+
 static sigjmp_buf ill_jmp;
 static void ill_handler(int sig)
 {

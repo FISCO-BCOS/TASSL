@@ -56,6 +56,12 @@ int ERR_load_EC_strings(void);
 #  define EC_F_ECP_NISTZ256_POINTS_MUL                     241
 #  define EC_F_ECP_NISTZ256_PRE_COMP_NEW                   244
 #  define EC_F_ECP_NISTZ256_WINDOWED_MUL                   242
+#  define EC_F_ECP_SM2Z256_GET_AFFINE                      300
+#  define EC_F_ECP_SM2Z256_INV_MOD_ORD                     301
+#  define EC_F_ECP_SM2Z256_MULT_PRECOMPUTE                 302
+#  define EC_F_ECP_SM2Z256_POINTS_MUL                      303
+#  define EC_F_ECP_SM2Z256_PRE_COMP_NEW                    304
+#  define EC_F_ECP_SM2Z256_WINDOWED_MUL                    305
 #  define EC_F_ECX_KEY_OP                                  266
 #  define EC_F_ECX_PRIV_ENCODE                             267
 #  define EC_F_ECX_PUB_ENCODE                              268
