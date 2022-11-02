@@ -13,14 +13,11 @@
 
 # include <openssl/opensslconf.h>
 
-# ifdef OPENSSL_NO_SM3
-
+# ifndef OPENSSL_NO_SM3
+ 
 #  ifdef __cplusplus
 extern "C" {
 #  endif
-
-#  error SM3 is disabled.
-# endif
 
 # define SM3_DIGEST_LENGTH 32
 # define SM3_WORD unsigned int
@@ -43,7 +40,6 @@ void sm3_block_data_order(SM3_CTX *c, const void *p, size_t num);
 
 #  ifdef __cplusplus
 }
-#  endif
-
-
+#endif
+# endif
 #endif
