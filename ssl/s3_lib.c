@@ -5090,9 +5090,9 @@ int ssl_derive_SM2(SSL *s, EVP_PKEY *privkey, EVP_PKEY *pubkey,  int gensecret)
     
     local_e_sm4 = ENGINE_get_cipher_engine(NID_sm4_cbc);        //如果加载了SM4引擎，则协商密文的premasterkey；如果没有加载则协商明文的premasterkey
     if(local_e_sm4)
-        pctx->app_data = 1;
+        pctx->app_data = (void*)1;
     else
-        pctx->app_data = 0;
+        pctx->app_data = (void*)0;
         
     if(EVP_PKEY_derive(pctx, pms, &pmslen) <= 0) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_DERIVE_SM2,
